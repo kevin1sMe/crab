@@ -1,5 +1,5 @@
 PLAT ?= none
-PLATS = linux macosx
+PLATS = linux osx
 
 .PHONY : none $(PLATS) clean all
 
@@ -15,7 +15,7 @@ none:
 
 target:  utf8.so crab.so
 linux : target
-macosx : target
+osx : target
 
 SHARD := 
 
@@ -23,7 +23,7 @@ SHARD :=
 #macosx : PLAT = macosx
 
 linux: SHARD := --shared
-macosx: SHARD := -dynamiclib -Wl,-undefined,dynamic_lookup 
+osx: SHARD := -dynamiclib -Wl,-undefined,dynamic_lookup 
 
 utf8.so: lua-utf8.c
 	gcc -fPIC $(SHARD) -g -O0 -Wall -I/usr/local/include -o $@ $^ -L/usr/local/lib

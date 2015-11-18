@@ -199,17 +199,19 @@ _dict_dump(Table *t, int indent) {
 
 static int
 _dict_insert(lua_State *L, Table* dict) {
-    if(!lua_istable(L, -1)) {
+    if(!lua_istable(L, -1)) { //一行词语放在一个 table里的
         return 0;
     }
 
-    size_t len = lua_rawlen(L, -1);
+    size_t len = lua_rawlen(L, -1); //获得table的长度
+    printf("table len:%ld\n", len);
     size_t i;
     uint32_t rune;
     TableNode *node = NULL;
     for(i=1; i<=len; i++) {
-        lua_rawgeti(L, -1, i);
+        lua_rawgeti(L, -1, i); //{word_count, "words"}
         int isnum;
+        //取出每一个字，作为value插入到table中
         rune = (uint32_t)lua_tointegerx(L, -1, &isnum);
         lua_pop(L, 1);
 
@@ -239,18 +241,21 @@ dict_open(lua_State *L) {
     luaL_checktype(L, 1, LUA_TTABLE);
 
     Table *dict = table_new();
-    size_t len = lua_rawlen(L,1);
+    size_t len = lua_rawlen(L,1); //获得table的长度, 此table = { {"line1"}, {"linue2"} }
     size_t i;
     for(i=1;i<=len;i++) {
-        lua_rawgeti(L, 1, i);
+        lua_rawgeti(L, 1, i); //将table[i] 压栈, 注意栈顶的元素还是一个table
         if(!_dict_insert(L, dict)) {
             _dict_close(dict);
             return luaL_error(L, "illegal parameters in table index %d", i);
         }
+        else{
+            /*printf("insert to dic_insert succ, %s\n", lua_typename(L, lua_type(L, -1)));*/
+        }
         lua_pop(L, 1);
     }
 
-    //_dict_dump(dict, 0);
+    _dict_dump(dict, 0);
     // don't close old g_dict, avoid crash
     g_dict = dict;
     return 0;
